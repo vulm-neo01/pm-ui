@@ -1,14 +1,30 @@
 import Image from 'next/image'
+import Footer from '@/components/Footer'
+import Head from "next/head";
+import NavbarHome from '@/components/NavbarHome'
+import Hero from '@/components/Hero';
+import SectionTitle from '@/components/SectionTitle';
+import Faq from '@/components/faq';
+import Benefits from '@/components/benefits';
+import { benefitOne, benefitTwo } from '@/components/data';
+import "../styles/bg-home.css"
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">src/app/page.js</code>
-        </p>
-      </div>
+    <main className="home-page flex min-h-screen flex-col items-center justify-between px-16">
+      <NavbarHome />
+      <Hero />
+      <SectionTitle
+        title="Why should you use Manage Now">
+        Manage Now is a completely free project management platform. 
+        The software is highly optimized for managing, monitoring and accelerating project progress.
+      </SectionTitle>
+      <Benefits data={benefitOne} />
+      <Benefits imgPos="right" data={benefitTwo} />
+      <SectionTitle title="Frequently Asked Questions">
+      </SectionTitle>
+      <Faq />
+      <Footer />
     </main>
   )
 }

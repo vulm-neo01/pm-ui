@@ -1,19 +1,19 @@
-import '../styles/globals.css'
+import '../../styles/auth.css'
 import { Inter } from 'next/font/google'
 
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata = {
-  title: 'Manage Now!',
-  description: 'Project and task management for students',
+    title: 'Authentication',
+    description: 'Authentication',
 }
 
 export default function RootLayout({ children }) {
-  return (
+    return (
     <html lang="en">
-      <body className={inter.className}>
+        <body className={inter.className}>
         {children}
-      </body>
+        </body>
     </html>
-  )
+    )
 }

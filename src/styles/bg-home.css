@@ -1,0 +1,6 @@
+.home-page {
+    background-image: url('https://wallpaperaccess.com/full/2454628.png');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed; /* Để giữ ảnh cố định khi trượt trang */
+}
