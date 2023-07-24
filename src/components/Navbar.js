@@ -26,6 +26,7 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
 import Link from 'next/link';
+import Cookies from 'js-cookie';
 
 const drawerWidth = 240;
 
@@ -161,30 +162,38 @@ const SettingsListItem = () => (
     </Link>
 );
 
-const LogoutListItem = () => (
-    <Link href="/">
-        <ListItem disablePadding sx={{ display: 'block' }}>
-            <ListItemButton
-            sx={{
-                minHeight: 48,
-                justifyContent: open ? 'initial' : 'center',
-                px: 2.5,
-            }}
-            >
-            <ListItemIcon
+const LogoutListItem = () => {
+    const handleLogout = () => {
+        Cookies.remove('token')
+    };
+    return (
+        <Link href="/">
+            <ListItem disablePadding sx={{ display: 'block' }}>
+                <ListItemButton
                 sx={{
-                minWidth: 0,
-                mr: open ? 3 : 'auto',
-                justifyContent: 'center',
+                    minHeight: 48,
+                    justifyContent: open ? 'initial' : 'center',
+                    px: 2.5,
                 }}
-            >
-                <LogoutIcon />
-            </ListItemIcon>
-            <ListItemText primary="Log Out" sx={{ opacity: open ? 1 : 0 }} />
-            </ListItemButton>
-        </ListItem>
-    </Link>
-);
+                onClick={handleLogout}
+                >
+                <ListItemIcon
+                    sx={{
+                    minWidth: 0,
+                    mr: open ? 3 : 'auto',
+                    justifyContent: 'center',
+                    }}
+                >
+                    <LogoutIcon />
+                </ListItemIcon>
+                <ListItemText primary="Log Out" sx={{ opacity: open ? 1 : 0 }} />
+                </ListItemButton>
+            </ListItem>
+        </Link>
+    );
+}
+
+
 
 
 const openedMixin = (theme) => ({
