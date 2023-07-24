@@ -26,7 +26,6 @@ const page = () => {
             headers: {
                 'Authorization': `Bearer ${Cookies.get('token')}`,
             },
-            credentials: 'include'
         })
             .then((response) => response.json())
             .then((responseData) => {

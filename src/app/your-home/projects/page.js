@@ -28,7 +28,6 @@ const page = () => {
             headers: {
                 'Authorization': `Bearer ${Cookies.get('token')}`,
             },
-            credentials: 'include'
         })
             .then((response) => response.json())
             .then((responseData) => {
@@ -40,36 +39,65 @@ const page = () => {
             });
     }, []);
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         const data = {
             "projectName": projectName,
             "description": description,
-            "progress": progress
+            "progress": progress,
+            "user": Cookies.get('user'),
         }
+
+        
 
         console.log(data)
 
-        const configs = {
-            "method": 'POST',
-            "headers": {
-                'Authorization': `Bearer ${Cookies.get('token')}`,
-                'Content-Type': 'application/json'
-            },
-            'credentials':'include'
-        }
+        // const configs = {
+        //     "headers": {
+        //         'Authorization': `Bearer ${Cookies.get('token')}`,
+        //         'Content-Type': 'application/json'
+        //     },
+        //     "redirect":'follow',
+        //     "credentials":"include"
+        // }
+        // console.log(configs)
         
-        axios.patch(`${API_BASE_URL}/api/projects`, data, configs)
-        .then((response) => response.json())
-        .then((responseData) => {
-            // Handle the response data if needed
-            console.log(responseData);
-            // Close the modal after successful submission
-            setShowModal(false);
-        })
-        .catch((error) => {
-            console.error('Error submitting data:', error);
-        });
+        // axios.post(`/api/projects`, data, configs)
+        // .then((response) => response)
+        // .then((responseData) => {
+        //     // Handle the response data if needed
+        //     console.log(responseData);
+        //     // Close the modal after successful submission
+        //     setShowModal(false);
+        // })
+        // .catch((error) => {
+        //     console.error('Error submitting data:', error);
+        // });
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/projects`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${Cookies.get('token')}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    data
+                }),
+            });
+
+            if (response.ok) {
+                // Xử lý phản hồi từ server nếu đăng nhập thành công
+                const data = await response.json();
+                console.log('Post successful!', data);
+            } else {
+                // Xử lý phản hồi từ server nếu đăng nhập không thành công
+                console.log('Post failed!');
+            }
+            // Xử lý phản hồi từ API tại đây
+        } catch (error) {
+            console.error('Error:', error);
+        }
     };
 
     // State để lưu id của project đang được chọn để xóa

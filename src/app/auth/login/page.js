@@ -37,6 +37,7 @@ export default function Login() {
                 const data = await response.json();
                 console.log('Login successful!', data);
                 Cookies.set('token', data.jwt, { expires: expirationDate });
+                Cookies.set('user', data.user, { expires: expirationDate });
                 router.push('/your-home')
             } else {
                 // Xử lý phản hồi từ server nếu đăng nhập không thành công
