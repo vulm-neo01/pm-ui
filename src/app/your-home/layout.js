@@ -9,10 +9,9 @@ export const metadata = {
     description: 'Project and task management for students',
 }
 
-export default function RootLayout({ children }) {
+export default function ChildLayout({ children }) {
     return (
-        <html lang="en">
-        <body className={inter.className}>
+        <section className={inter.className}>
             <div className='flex'>
                 <NavBar className="flex-none"/>
                 
@@ -22,7 +21,6 @@ export default function RootLayout({ children }) {
                 </div>
             </div>
 
-        </body>
-        </html>
+        </section>
     )
 }

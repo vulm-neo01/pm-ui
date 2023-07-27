@@ -18,9 +18,9 @@ import axios from '@/app/api/axios';
 const page = () => {
     const [projects, setProjects] = useState(null);
     
-    const [projectName, setProjectName] = useState(null);
-    const [description, setDescription] = useState(null);
-    const [progress, setProgress] = useState('Ready');
+    const [projectName, setProjectName] = useState('');
+    const [description, setDescription] = useState('');
+    const [progress, setProgress] = useState('READY');
 
     useEffect(() => {
         fetch(`${API_BASE_URL}/api/users/projects`, {
@@ -40,18 +40,7 @@ const page = () => {
     }, []);
 
     const handleSubmit = async (e) => {
-        e.preventDefault();
-        const data = {
-            "projectName": projectName,
-            "description": description,
-            "progress": progress,
-            "user": Cookies.get('user'),
-        }
-
-        
-
-        console.log(data)
-
+        // e.preventDefault();
         // const configs = {
         //     "headers": {
         //         'Authorization': `Bearer ${Cookies.get('token')}`,
@@ -62,7 +51,16 @@ const page = () => {
         // }
         // console.log(configs)
         
-        // axios.post(`/api/projects`, data, configs)
+        const postData = {
+            projectName,
+            description,
+            progress: progress.toUpperCase(),
+            "user": Cookies.get('user')
+        }
+
+        console.log(postData)
+
+        // axios.post(`/api/projects`, postData, configs)
         // .then((response) => response)
         // .then((responseData) => {
         //     // Handle the response data if needed
@@ -81,18 +79,20 @@ const page = () => {
                     'Authorization': `Bearer ${Cookies.get('token')}`,
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({
-                    data
-                }),
+                body: JSON.stringify(
+                    postData
+                ),
             });
 
             if (response.ok) {
                 // Xử lý phản hồi từ server nếu đăng nhập thành công
                 const data = await response.json();
                 console.log('Post successful!', data);
+                setShowModal(false);
             } else {
                 // Xử lý phản hồi từ server nếu đăng nhập không thành công
                 console.log('Post failed!');
+                console.log(postData)
             }
             // Xử lý phản hồi từ API tại đây
         } catch (error) {
@@ -151,8 +151,6 @@ const page = () => {
                             <input
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-indigo-500"
                             type="text"
-                            id="projectName"
-                            name="projectName"
                             placeholder="Develop Software"
                             value={projectName}
                             onChange={(e) => setProjectName(e.target.value)}
@@ -164,10 +162,8 @@ const page = () => {
                             </label>
                             <textarea
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-indigo-500"
-                                id="description"
-                                name="description"
                                 placeholder="This project is created to make the world better"
-                                rows="5" // Số dòng hiển thị ban đầu
+                                rows="3" // Số dòng hiển thị ban đầu
                                 value={description}
                                 onChange={(e) => setDescription(e.target.value)}
                             />
@@ -179,15 +175,13 @@ const page = () => {
                             </label>
                             <select
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-indigo-500"
-                                id="progress"
-                                name="progress"
                                 value={progress}
                                 onChange={(e) => setProgress(e.target.value)}
                             >
-                                <option value="ready">Ready</option>
-                                <option value="doing">Doing</option>
-                                <option value="done">Done</option>
-                                <option value="expired">Outdated</option>
+                                <option value="READY">READY</option>
+                                <option value="DOING">DOING</option>
+                                <option value="DONE">DONE</option>
+                                <option value="EXPIRED">OUTDATED</option>
                             </select>
                         </div>
                         {/* Các trường thông tin khác */}
@@ -213,7 +207,7 @@ const page = () => {
                         <div className="w-full shrink-0 grow-0 basis-auto px-6 md:mb-0 md:w-3/12">
                             <div className="relative mb-6 overflow-hidden rounded-lg bg-cover bg-no-repeat shadow-lg dark:shadow-black/20"
                             data-te-ripple-init data-te-ripple-color="light">
-                            <img src="https://www.ntaskmanager.com/wp-content/uploads/2020/02/What-is-a-Project-1-scaled.jpg" class="w-min" alt="Louvre" />
+                            <img src="https://www.ntaskmanager.com/wp-content/uploads/2020/02/What-is-a-Project-1-scaled.jpg" className="w-min" alt="Louvre" />
                             <a href={`/your-home/projects/${project.projectId}`}>
                                 <div
                                 className="absolute top-0 right-0 bottom-0 left-0 h-full w-full overflow-hidden bg-fixed opacity-0 transition duration-300 ease-in-out hover:opacity-100 bg-[hsla(0,0%,98.4%,.15)]">
@@ -240,8 +234,8 @@ const page = () => {
                                 <EditIcon />
                             </IconButton>
                             {/* Button Xóa dự án */}
-                            <IconButton id={`delete-${project.projectId}`} aria-label="delete" style={{ fontSize: '1.5rem', margin: '10px' }}>
-                                <DeleteIcon onClick={() => handleOpenDialog(project.projectId)} />
+                            <IconButton onClick={() => handleOpenDialog(project.projectId)} id={`delete-${project.projectId}`} aria-label="delete" style={{ fontSize: '1.5rem', margin: '10px' }}>
+                                <DeleteIcon/>
                             </IconButton>
                         </div>
                     </div>

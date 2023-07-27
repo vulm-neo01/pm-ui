@@ -56,7 +56,7 @@ const page = () => {
                             <div className="w-full shrink-0 grow-0 basis-auto px-6 md:mb-0 md:w-3/12">
                                 <div className="relative mb-6 overflow-hidden rounded-lg bg-cover bg-no-repeat shadow-lg dark:shadow-black/20"
                                 data-te-ripple-init data-te-ripple-color="light">
-                                <img src="https://flow-e.com/wp-content/uploads/bfi_thumb/Google-task-list-379tmv50jkyo35v5zqpoui.png" class="w-min" alt="Louvre" />
+                                <img src="https://flow-e.com/wp-content/uploads/bfi_thumb/Google-task-list-379tmv50jkyo35v5zqpoui.png" className="w-min" alt="Louvre" />
                                 <a href={`/your-home/tasks/${task.taskId}`}>
                                     <div
                                     className="absolute top-0 right-0 bottom-0 left-0 h-full w-full overflow-hidden bg-fixed opacity-0 transition duration-300 ease-in-out hover:opacity-100 bg-[hsla(0,0%,98.4%,.15)]">
@@ -83,8 +83,8 @@ const page = () => {
                                     <EditIcon />
                                 </IconButton>
                                 {/* Button Xóa dự án */}
-                                <IconButton id={`delete-${task.taskId}`} aria-label="delete" style={{ fontSize: '1.5rem', margin: '10px' }}>
-                                    <DeleteIcon onClick={() => handleOpenDialog(task.taskId)} />
+                                <IconButton onClick={() => handleOpenDialog(task.taskId)} id={`delete-${task.taskId}`} aria-label="delete" style={{ fontSize: '1.5rem', margin: '10px' }}>
+                                    <DeleteIcon />
                                 </IconButton>
                             </div>
                         </div>

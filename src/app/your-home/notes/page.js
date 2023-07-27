@@ -160,8 +160,8 @@ const page = () => {
                                     <EditIcon />
                                 </IconButton>
                                 {/* Button Xóa */}
-                                <IconButton id={`delete-${note.noteId}`} aria-label="delete" style={{ fontSize: '1.5rem', margin: '10px' }}>
-                                    <DeleteIcon onClick={() => handleOpenDialog(note.noteId)} />
+                                <IconButton onClick={() => handleOpenDialog(note.noteId)} id={`delete-${note.noteId}`} aria-label="delete" style={{ fontSize: '1.5rem', margin: '10px' }}>
+                                    <DeleteIcon />
                                 </IconButton>
                             </ListItemSecondaryAction>
                         </ListItem>
