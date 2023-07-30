@@ -17,9 +17,11 @@ import { useRouter } from 'next/navigation';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import axios from '@/app/api/axios';
+import { getManagerIdList } from '@/app/api/projectAPI';
 
 const page = () => {
     const [projects, setProjects] = useState(null);
+    const userId = Cookies.get('userId');
     
     const [projectName, setProjectName] = useState('');
     const [description, setDescription] = useState('');
@@ -89,22 +91,69 @@ const page = () => {
             console.error('Error:', error);
         }
     };
-
+    
+    const [managers, setManagers] = useState(null);
+    
     const handleDelete = async (e) => {
+
         try {
-            const response = await fetch(`${API_BASE_URL}/api/projects/${selectedProjectId}`, {
-                method: 'DELETE',
+            const res = await fetch(`${API_BASE_URL}/api/projects/managerIds/${selectedProjectId}`, {
+                method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${Cookies.get('token')}`,
                 }
             });
+
+            const responseData = await res.json();
+            console.log(responseData);
+            console.log(userId);
             
-            console.log('Delete successful!');
-            setSelectedProjectId(null);
-            window.location.reload();
+            if (responseData && Array.isArray(responseData) && responseData.includes(userId)) {
+                try {
+                    await fetch(`${API_BASE_URL}/api/projects/${selectedProjectId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': `Bearer ${Cookies.get('token')}`,
+                        }
+                    });
+                    
+                    console.log('Delete successful!');
+                    setSelectedProjectId(null);
+                    window.location.reload();
+                } catch (error) {
+                    console.error('Error:', error);
+                }
+            } else {
+                alert("You are not manager of this project!")
+                setSelectedProjectId(null);
+                return;
+            }
+            // Xử lý phản hồi từ API tại đây
         } catch (error) {
             console.error('Error:', error);
         }
+
+        // if(managers && managers.includes(userId)){
+        //     try {
+        //         const response = await fetch(`${API_BASE_URL}/api/projects/${selectedProjectId}`, {
+        //             method: 'DELETE',
+        //             headers: {
+        //                 'Authorization': `Bearer ${Cookies.get('token')}`,
+        //             }
+        //         });
+                
+        //         console.log('Delete successful!');
+        //         setSelectedProjectId(null);
+        //         // window.location.reload();
+        //     } catch (error) {
+        //         console.error('Error:', error);
+        //     }
+        // } else {
+        //     alert("You are not manager of this project!")
+        //     setSelectedProjectId(null);
+        //     setManagers(null);
+        //     return;
+        // }
     };
     
 
