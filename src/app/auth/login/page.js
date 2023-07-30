@@ -38,6 +38,7 @@ export default function Login() {
                 console.log('Login successful!', data);
                 Cookies.set('token', data.jwt, { expires: expirationDate });
                 Cookies.set('user', data.user, { expires: expirationDate });
+                alert('Login successfully! Happy Manage Now!')
                 router.push('/your-home')
             } else {
                 // Xử lý phản hồi từ server nếu đăng nhập không thành công
@@ -57,6 +58,7 @@ export default function Login() {
                     <RiArrowLeftSLine size={36} color="purple" />
                 </Link>
             </div>
+            
 
             <div className="w-full p-6 m-auto bg-white rounded-md shadow-xl shadow-rose-600/40 ring ring-2 ring-purple-600 lg:max-w-xl">
                 {/* Đây là phần logo ứng dụng */}

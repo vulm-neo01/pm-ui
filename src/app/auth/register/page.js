@@ -169,6 +169,7 @@ export default function Register() {
                 const data = await response.json();
                 console.log(data);
                 setEmailError('');
+                alert('Register successfully. Login to continue!')
                 router.push('/auth/login')
             } else {
                 setEmailError('Email already exists!');
@@ -181,7 +182,7 @@ export default function Register() {
     };
 
     return (
-        <div className="bg-gradient-to-br from-blue-100 to-purple-200 relative flex flex-col justify-center min-h-screen overflow-hidden">
+        <div className="bg-gradient-to-br py-4 from-blue-100 to-purple-200 relative flex flex-col justify-center min-h-screen overflow-hidden">
             <div className="absolute top-4 left-4">
                 <Link href="/"> {/* Đặt đường dẫn tới trang Home */}
                     <RiArrowLeftSLine size={36} color="purple" />

@@ -14,6 +14,15 @@ import Cookies from 'js-cookie';
 
 const page = () => {
     const [tasks, setTasks] = useState(null);
+    const [selectedTaskId, setSelectedTaskId] = useState(null);
+
+    const handleOpenDialog = (taskId) => {
+        setSelectedTaskId(taskId);
+    };
+
+    const handleCloseDialog = () => {
+        setSelectedTaskId(null);
+    };
 
     useEffect(() => {
         fetch(`${API_BASE_URL}/api/users/tasks`, {
@@ -32,59 +41,63 @@ const page = () => {
             });
     }, []);
 
-    // State để lưu id của project đang được chọn để xóa
-    const [selectedProjectId, setSelectedProjectId] = useState(null);
-
-    const handleOpenDialog = (projectId) => {
-        setSelectedProjectId(projectId);
+    const handleDelete = async () => {
+        try {
+            await fetch(`${API_BASE_URL}/api/tasks/${selectedTaskId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${Cookies.get('token')}`,
+                }
+            });
+            
+            console.log('Delete successful!');
+            setSelectedTaskId(null);
+            window.location.reload();
+        } catch (error) {
+            console.error('Error:', error);
+        }
     };
 
-    const handleCloseDialog = () => {
-        setSelectedProjectId(null);
-    };
-    
     return (
         <>
-            <div className='flex justify-between items-center border-b-4 border-l-4 border-zinc-500 p-4'>
-                <h1 className='text-4xl font-semibold text-gray-800'>Task List</h1>
+            <div className="flex justify-between items-center border-4 border-zinc-500 p-4 rounded-3xl">
+                <h1 className="text-3xl font-semibold text-gray-800">Task List</h1>
             </div>
             
             <div>
                 {tasks ? (
                     tasks.map((task) => (
-                        <div className="flex flex-nowrap h-auto" key={task.taskId}>
-                            <div className="w-full shrink-0 grow-0 basis-auto px-6 md:mb-0 md:w-3/12">
-                                <div className="relative mb-6 overflow-hidden rounded-lg bg-cover bg-no-repeat shadow-lg dark:shadow-black/20"
-                                data-te-ripple-init data-te-ripple-color="light">
-                                <img src="https://flow-e.com/wp-content/uploads/bfi_thumb/Google-task-list-379tmv50jkyo35v5zqpoui.png" className="w-min" alt="Louvre" />
+                        <div key={task.taskId} className="flex items-center gap-6 mb-8">
+                            <div className="w-1/4">
+                                <div className="relative overflow-hidden rounded-lg bg-gray-100 shadow-lg">
+                                <img src="https://flow-e.com/wp-content/uploads/bfi_thumb/Google-task-list-379tmv50jkyo35v5zqpoui.png" alt="Task" className="w-full h-auto" />
                                 <a href={`/your-home/tasks/${task.taskId}`}>
-                                    <div
-                                    className="absolute top-0 right-0 bottom-0 left-0 h-full w-full overflow-hidden bg-fixed opacity-0 transition duration-300 ease-in-out hover:opacity-100 bg-[hsla(0,0%,98.4%,.15)]">
-                                    </div>
+                                    <div className="absolute top-0 right-0 bottom-0 left-0 h-full w-full bg-[hsla(0,0%,98.4%,.15)] opacity-0 transition duration-300 ease-in-out hover:opacity-100"></div>
                                 </a>
                                 </div>
                             </div>
-    
-                            <div className="mb-6 mr-auto w-full shrink-0 grow-0 basis-auto px-3 md:mb-0 md:w-9/12 xl:w-7/12">
+
+                            <div className="flex-1">
                                 <a href={`/your-home/tasks/${task.taskId}`}>
-                                    <h5 className="mb-3 text-lg font-bold">{task.taskName}</h5>
+                                <h5 className="mb-3 text-lg font-bold cursor-pointer hover:text-blue-500">{task.taskName}</h5>
                                 </a>
-    
-                                <p className="mb-6 text-neutral-500 dark:text-neutral-300">
+
+                                <p className="mb-2 text-neutral-500 dark:text-neutral-300">
                                 <small>Created <u>{task.createdDate}</u> by {task.createdBy}</small>
                                 </p>
                                 <p className="text-neutral-500 dark:text-neutral-300">
                                 {task.description}
                                 </p>
                             </div>
-                            <div className='shrink-0 grow-0 basis-auto flex justify-center items-center'>
+
+                            <div className="flex items-center">
                                 {/* Button Sửa thông tin dự án */}
                                 <IconButton aria-label="edit" style={{ fontSize: '1.5rem', margin: '10px' }}>
-                                    <EditIcon />
+                                <EditIcon />
                                 </IconButton>
                                 {/* Button Xóa dự án */}
                                 <IconButton onClick={() => handleOpenDialog(task.taskId)} id={`delete-${task.taskId}`} aria-label="delete" style={{ fontSize: '1.5rem', margin: '10px' }}>
-                                    <DeleteIcon />
+                                <DeleteIcon />
                                 </IconButton>
                             </div>
                         </div>
@@ -98,7 +111,7 @@ const page = () => {
             </div>
 
             <Dialog
-                open={selectedProjectId !== null}
+                open={selectedTaskId !== null}
                 onClose={handleCloseDialog}
                 aria-labelledby="alert-dialog-title"
                 aria-describedby="alert-dialog-description"
@@ -113,7 +126,7 @@ const page = () => {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCloseDialog}>No</Button>
-                    <Button onClick={handleCloseDialog} autoFocus>
+                    <Button onClick={handleDelete} autoFocus>
                         Yes
                     </Button>
                 </DialogActions>

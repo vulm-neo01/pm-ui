@@ -3,19 +3,27 @@ import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { API_BASE_URL } from '../api/apiBase';
 import Cookies from 'js-cookie';
-import { fetchUserData } from '../api/getUser';
+import { fetchUserData } from '../api/api';
 
 
 const Page = () => {
     const [data, setData] = useState(null);
+    const [userId, setUserId] = useState(null);
+    const expirationTimeInMinutes = 30;
+    const expirationDate = new Date();
+    expirationDate.setTime(expirationDate.getTime() + (expirationTimeInMinutes * 60 * 1000));
 
     useEffect(() => {
         // Gọi hàm fetchUserData từ module api.js
         fetchUserData()
             .then((responseData) => {
                 setData(responseData); // Cập nhật dữ liệu vào state data
+                const userIdFromResponse = responseData.userId;
+                setUserId(userIdFromResponse); // Cập nhật giá trị userId
+                Cookies.set('userId', userIdFromResponse, { expires: expirationDate });
                 console.log(responseData);
             });
+        
     }, []);
 
     return (

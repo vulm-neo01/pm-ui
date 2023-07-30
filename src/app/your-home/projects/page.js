@@ -13,6 +13,9 @@ import DialogTitle from '@mui/material/DialogTitle';
 import Button from '@mui/material/Button';
 import Cookies from 'js-cookie';
 import { API_BASE_URL } from '@/app/api/apiBase';
+import { useRouter } from 'next/navigation';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 import axios from '@/app/api/axios';
 
 const page = () => {
@@ -21,10 +24,17 @@ const page = () => {
     const [projectName, setProjectName] = useState('');
     const [description, setDescription] = useState('');
     const [progress, setProgress] = useState('READY');
+    const [startDate, setStartDate] = useState('');
+    const [endDate, setEndDate] = useState('');
+    
+    // State để lưu id của project đang được chọn để xóa
+    const [selectedProjectId, setSelectedProjectId] = useState(null);
+    const [showModal, setShowModal] = useState(false);
+
+    const router = useRouter();
 
     useEffect(() => {
         fetch(`${API_BASE_URL}/api/users/projects`, {
-            method: 'GET',
             headers: {
                 'Authorization': `Bearer ${Cookies.get('token')}`,
             },
@@ -38,39 +48,19 @@ const page = () => {
                 console.error('Error fetching data:', error);
             });
     }, []);
-
+    
     const handleSubmit = async (e) => {
         // e.preventDefault();
-        // const configs = {
-        //     "headers": {
-        //         'Authorization': `Bearer ${Cookies.get('token')}`,
-        //         'Content-Type': 'application/json'
-        //     },
-        //     "redirect":'follow',
-        //     "credentials":"include"
-        // }
-        // console.log(configs)
         
         const postData = {
             projectName,
             description,
             progress: progress.toUpperCase(),
+            startDate,
+            endDate,
             "user": Cookies.get('user')
         }
-
         console.log(postData)
-
-        // axios.post(`/api/projects`, postData, configs)
-        // .then((response) => response)
-        // .then((responseData) => {
-        //     // Handle the response data if needed
-        //     console.log(responseData);
-        //     // Close the modal after successful submission
-        //     setShowModal(false);
-        // })
-        // .catch((error) => {
-        //     console.error('Error submitting data:', error);
-        // });
 
         try {
             const response = await fetch(`${API_BASE_URL}/api/projects`, {
@@ -100,8 +90,24 @@ const page = () => {
         }
     };
 
-    // State để lưu id của project đang được chọn để xóa
-    const [selectedProjectId, setSelectedProjectId] = useState(null);
+    const handleDelete = async (e) => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/projects/${selectedProjectId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${Cookies.get('token')}`,
+                }
+            });
+            
+            console.log('Delete successful!');
+            setSelectedProjectId(null);
+            window.location.reload();
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    };
+    
+
 
     const handleOpenDialog = (projectId) => {
         setSelectedProjectId(projectId);
@@ -111,7 +117,6 @@ const page = () => {
         setSelectedProjectId(null);
     };
     
-    const [showModal, setShowModal] = useState(false);
 
     const handleOpenModal = (e) => {
         e.preventDefault();
@@ -125,27 +130,29 @@ const page = () => {
     
     return (
         <>
-            <div className='flex justify-between items-center border-b-4 border-l-4 border-zinc-500 p-4'>
-                <h1 className='text-4xl font-semibold text-gray-800'>Project List</h1>
-                <button className='bg-transparent hover:bg-sky-200 focus:outline-none focus:ring focus:ring-black-300 rounded-full'
-                    onClick={handleOpenModal}>
-                    <AddCircleOutlineIcon fontSize='large'></AddCircleOutlineIcon>
+            <div className="flex justify-between items-center border-4 border-zinc-500 p-4 rounded-3xl">
+                <h1 className="text-3xl font-semibold text-gray-800">Project List</h1>
+                <button
+                    className="bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring focus:ring-black-300 rounded-full"
+                    onClick={handleOpenModal}
+                >
+                    <AddCircleOutlineIcon fontSize="large" className="text-white" />
                 </button>
                       {/* Render CreateProjectModal */}
                 {showModal && (
                     <div className="fixed inset-0 flex items-center justify-center z-50">
-                    <div className="bg-white p-4 w-full max-w-sm rounded-md shadow-md border-2">
+                    <div className="bg-white p-2 w-full max-w-sm rounded-md shadow-md border-2 mt-8">
                         <button className=" text-gray-500" onClick={handleCloseModal}>
                             {/* Dấu X (hoặc biểu tượng đóng khác) */}
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
                             </svg>
                         </button>
-                        <h1 className="text-2xl font-bold mb-6 text-center">Create new Project</h1>
+                        <h1 className="text-2xl font-bold mb-2 text-center">Create new Project</h1>
                         <form>
                         {/* Các trường thông tin ở đây */}
-                        <div className="mb-4">
-                            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="projectName">
+                        <div className="mb-1">
+                            <label className="block text-gray-700 text-sm font-bold" htmlFor="projectName">
                             Project Name
                             </label>
                             <input
@@ -156,8 +163,8 @@ const page = () => {
                             onChange={(e) => setProjectName(e.target.value)}
                             />
                         </div>
-                        <div className="mb-4">
-                            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="description">
+                        <div className="mb-1">
+                            <label className="block text-gray-700 text-sm font-bold" htmlFor="description">
                                 Description
                             </label>
                             <textarea
@@ -169,8 +176,8 @@ const page = () => {
                             />
                         </div>
 
-                        <div className="mb-4">
-                            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="progress">
+                        <div className="mb-1">
+                            <label className="block text-gray-700 text-sm font-bold" htmlFor="progress">
                                 Progress
                             </label>
                             <select
@@ -183,6 +190,28 @@ const page = () => {
                                 <option value="DONE">DONE</option>
                                 <option value="EXPIRED">OUTDATED</option>
                             </select>
+                        </div>
+                        <div className="mb-1">
+                            <label className="block text-gray-700 text-sm font-bold" htmlFor="startDate">
+                            Start Date
+                            </label>
+                            <input
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-indigo-500"
+                            type="date"
+                            value={startDate}
+                            onChange={(e) => setStartDate(e.target.value)}
+                            />
+                        </div>
+                        <div className="mb-1">
+                            <label className="block text-gray-700 text-sm font-bold" htmlFor="endDate">
+                            End Date
+                            </label>
+                            <input
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-indigo-500"
+                            type="date"
+                            value={endDate}
+                            onChange={(e) => setEndDate(e.target.value)}
+                            />
                         </div>
                         {/* Các trường thông tin khác */}
                         <div className="flex justify-center">
@@ -203,43 +232,41 @@ const page = () => {
             <div>
                 {projects ? (
                     projects.map((project) => (
-                    <div className="flex flex-nowrap h-auto" key={project.projectId}>
-                        <div className="w-full shrink-0 grow-0 basis-auto px-6 md:mb-0 md:w-3/12">
-                            <div className="relative mb-6 overflow-hidden rounded-lg bg-cover bg-no-repeat shadow-lg dark:shadow-black/20"
-                            data-te-ripple-init data-te-ripple-color="light">
-                            <img src="https://www.ntaskmanager.com/wp-content/uploads/2020/02/What-is-a-Project-1-scaled.jpg" className="w-min" alt="Louvre" />
-                            <a href={`/your-home/projects/${project.projectId}`}>
-                                <div
-                                className="absolute top-0 right-0 bottom-0 left-0 h-full w-full overflow-hidden bg-fixed opacity-0 transition duration-300 ease-in-out hover:opacity-100 bg-[hsla(0,0%,98.4%,.15)]">
+                        <div className="flex items-center gap-6 mb-8" key={project.projectId}>
+                            <div className="w-1/4">
+                                <div className="relative overflow-hidden rounded-lg bg-gray-100 shadow-lg">
+                                <img src="https://www.ntaskmanager.com/wp-content/uploads/2020/02/What-is-a-Project-1-scaled.jpg" alt="Louvre" className="w-full h-auto" />
+                                <Link href={`/your-home/projects/${project.projectId}`}>
+                                    <div className="absolute top-0 right-0 bottom-0 left-0 h-full w-full bg-[hsla(0,0%,98.4%,.15)] opacity-0 transition duration-300 ease-in-out hover:opacity-100"></div>
+                                </Link>
                                 </div>
-                            </a>
+                            </div>
+
+                            <div className="flex-1">
+                                <Link href={`/your-home/projects/${project.projectId}`}>
+                                <h5 className="mb-3 text-lg font-bold cursor-pointer hover:text-blue-500">{project.projectName}</h5>
+                                </Link>
+
+                                <p className="mb-2 text-neutral-500 dark:text-neutral-300">
+                                <small>Start from <u>{project.startDate}</u> to <u>{project.endDate}</u> by {project.createdBy}</small>
+                                </p>
+                                <p className="text-neutral-500 dark:text-neutral-300">
+                                {project.description}
+                                </p>
+                            </div>
+
+                            <div className="flex items-center">
+                                {/* Button Sửa thông tin dự án */}
+                                <IconButton aria-label="edit" style={{ fontSize: '1.5rem', margin: '10px' }}>
+                                <EditIcon />
+                                </IconButton>
+                                {/* Button Xóa dự án */}
+                                <IconButton onClick={() => handleOpenDialog(project.projectId)} id={`delete-${project.projectId}`} aria-label="delete" style={{ fontSize: '1.5rem', margin: '10px' }}>
+                                <DeleteIcon />
+                                </IconButton>
                             </div>
                         </div>
-    
-                        <div className="mb-6 mr-auto w-full shrink-0 grow-0 basis-auto px-3 md:mb-0 md:w-9/12 xl:w-7/12">
-                            <a href={`/your-home/projects/${project.projectId}`}>
-                                <h5 className="mb-3 text-lg font-bold">{project.projectName}</h5>
-                            </a>
-    
-                            <p className="mb-6 text-neutral-500 dark:text-neutral-300">
-                            <small>Start from <u>{project.startDate}</u> by {project.createdBy}</small>
-                            </p>
-                            <p className="text-neutral-500 dark:text-neutral-300">
-                            {project.description}
-                            </p>
-                        </div>
-                        <div className='shrink-0 grow-0 basis-auto flex justify-center items-center'>
-                            {/* Button Sửa thông tin dự án */}
-                            <IconButton aria-label="edit" style={{ fontSize: '1.5rem', margin: '10px' }}>
-                                <EditIcon />
-                            </IconButton>
-                            {/* Button Xóa dự án */}
-                            <IconButton onClick={() => handleOpenDialog(project.projectId)} id={`delete-${project.projectId}`} aria-label="delete" style={{ fontSize: '1.5rem', margin: '10px' }}>
-                                <DeleteIcon/>
-                            </IconButton>
-                        </div>
-                    </div>
-                ))
+                    ))
                 ) : (
                     <div className='flex justify-center items-center'>
                         <h1 className='text-4xl font-semibold text-gray-800'>Loading...</h1>
@@ -266,7 +293,7 @@ const page = () => {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCloseDialog}>No</Button>
-                    <Button onClick={handleCloseDialog} autoFocus>
+                    <Button onClick={handleDelete} autoFocus>
                         Yes
                     </Button>
                 </DialogActions>

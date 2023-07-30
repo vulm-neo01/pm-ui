@@ -14,11 +14,36 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import Cookies from 'js-cookie';
 import { API_BASE_URL } from '@/app/api/apiBase';
+import { format, addHours  } from 'date-fns';
 
 import { List, ListItem, ListItemText, ListItemSecondaryAction, IconButton } from '@mui/material';
 
 const page = () => {
     const [notes, setNotes] = useState(null);
+    const [selectedDate, setSelectedDate] = useState(null);
+    
+    const [selectedNoteId, setSelectedNoteId] = useState(null);
+    const [showModal, setShowModal] = useState(false);
+
+    const [title, setTitle] = useState('');
+    const [content, setContent] = useState('');
+    const [alertTime, setAlertTime] = useState(null);
+
+    const handleOpenDialog = (noteId) => {
+        setSelectedNoteId(noteId);
+    };
+    const handleCloseDialog = () => {
+        setSelectedNoteId(null);
+    };
+
+    const handleOpenModal = (e) => {
+        e.preventDefault();
+        setShowModal(true);
+    };
+    const handleCloseModal = (e) => {
+        e.preventDefault();
+        setShowModal(false);
+    };
 
     useEffect(() => {
         fetch(`${API_BASE_URL}/api/users/notes`, {
@@ -36,37 +61,76 @@ const page = () => {
                 console.error('Error fetching data:', error);
             });
     }, []);
-    const [selectedDate, setSelectedDate] = useState(null);
 
-    const [selectedNoteId, setSelectedNoteId] = useState(null);
-
-    const handleOpenDialog = (noteId) => {
-        setSelectedNoteId(noteId);
+    const handleDelete = async (e) => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/notes/${selectedNoteId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${Cookies.get('token')}`,
+                }
+            });
+            
+            console.log('Delete successful!');
+            setSelectedNoteId(null);
+            window.location.reload();
+        } catch (error) {
+            console.error('Error:', error);
+        }
     };
 
-    const handleCloseDialog = () => {
-        setSelectedNoteId(null);
+    const handleDateChange = (date) => {
+        setAlertTime(addHours(date, 7));
+        setSelectedDate(date);
     };
 
-    const [showModal, setShowModal] = useState(false);
-
-    const handleOpenModal = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        setShowModal(true);
-    };
+        const postData = {
+            title,
+            content,
+            alertTime,
+            "user": Cookies.get('user')
+        }
+        console.log(postData)
 
-    const handleCloseModal = (e) => {
-        e.preventDefault();
-        setShowModal(false);
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/notes`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${Cookies.get('token')}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(
+                    postData
+                ),
+            });
+
+            if (response.ok) {
+                // Xử lý phản hồi từ server nếu đăng nhập thành công
+                const data = await response.json();
+                console.log('Post successful!', data);
+                setShowModal(false);
+            } else {
+                // Xử lý phản hồi từ server nếu đăng nhập không thành công
+                console.log('Post failed!');
+                console.log(postData)
+            }
+            // Xử lý phản hồi từ API tại đây
+        } catch (error) {
+            console.error('Error:', error);
+        }
     };
     
     return (
         <>
-            <div className='flex justify-between items-center border-b-4 border-l-4 border-zinc-500 p-4'>
-                <h1 className='text-4xl font-semibold text-gray-800'>Your Note</h1>
-                <button className='bg-transparent hover:bg-sky-200 focus:outline-none focus:ring focus:ring-black-300 rounded-full'
-                    onClick={handleOpenModal}>
-                    <AddCircleOutlineIcon fontSize='large'></AddCircleOutlineIcon>
+            <div className="flex justify-between items-center border-4 border-zinc-500 p-4 rounded-3xl">
+                <h1 className="text-3xl font-semibold text-gray-800">Note List</h1>
+                <button
+                    className="bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring focus:ring-black-300 rounded-full"
+                    onClick={handleOpenModal}
+                >
+                    <AddCircleOutlineIcon fontSize="large" className="text-white" />
                 </button>
                 {showModal && (
                     <div className="fixed inset-0 flex items-center justify-center z-50">
@@ -77,41 +141,45 @@ const page = () => {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
                             </svg>
                         </button>
-                        <h1 className="text-2xl font-bold mb-6 text-center">Create new Note</h1>
+                        <h1 className="text-2xl font-bold mb-2 text-center">Create new Note</h1>
                         <form>
                         {/* Các trường thông tin ở đây */}
-                        <div className="mb-4">
-                            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="name">
+                        <div className="mb-1">
+                            <label className="block text-gray-700 text-sm font-bold" htmlFor="name">
                             Note Title
                             </label>
                             <input
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-indigo-500"
                             type="text"
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)}
                             id="name"
                             name="name"
                             placeholder="Timeline work"
                             />
                         </div>
-                        <div className="mb-4">
-                            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="description">
-                                DialogContent
+                        <div className="mb-1">
+                            <label className="block text-gray-700 text-sm font-bold" htmlFor="content">
+                                Note Content
                             </label>
                             <textarea
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-indigo-500"
-                                id="description"
-                                name="description"
+                                id="content"
+                                name="content"
+                                onChange={(e) => setContent(e.target.value)}
+                                value={content}
                                 placeholder="This field is your description about your note"
-                                rows="5" // Số dòng hiển thị ban đầu
+                                rows="5"
                             />
                         </div>
-                        <div className="mb-4">
-                            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="alertTime">
+                        <div className="mb-1">
+                            <label className="block text-gray-700 text-sm font-bold" htmlFor="alertTime">
                             Alert Time
                             </label>
                             <DatePicker
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-indigo-500"
                                 selected={selectedDate}
-                                onChange={(date) => setSelectedDate(date)}
+                                onChange={handleDateChange}
                                 showTimeSelect
                                 timeFormat="HH:mm"
                                 timeIntervals={15}
@@ -125,6 +193,7 @@ const page = () => {
                             <button
                             className="bg-indigo-500 text-white text-sm font-bold py-2 px-4 rounded-md hover:bg-indigo-600 transition duration-300"
                             type="submit"
+                            onClick={handleSubmit}
                             >
                             Submit
                             </button>
@@ -138,20 +207,15 @@ const page = () => {
             <List sx={{}}>
                 {notes ? (
                     notes.map((note) => (
-                        <ListItem key={note.noteId} disableGutters sx={{ border: '2px solid #ccc',borderRadius: '8px', marginBottom: '10px', paddingLeft:'8px','&:hover': { background: '#C0C0C0' }}}>
+                        <ListItem key={note.noteId} disableGutters sx={{ border: '2px solid #ccc', borderRadius: '8px', marginBottom: '10px', paddingLeft: '8px', '&:hover': { background: '#C0C0C0' } }}>
                             <Link href={`/your-home/notes/${note.noteId}`} passHref>
-                                
                                 <ListItemText
-                                    primary={
-                                        <span style={{ fontWeight: 'bold' }}>
-                                            {note.title}
-                                        </span>
-                                    }
-                                    secondary={
-                                        <span style={{ color: '#888' }}>
-                                            Alert at <strong>{note.alertTime}</strong>
-                                        </span>
-                                    }
+                                primary={<span className="font-bold">{note.title}</span>}
+                                secondary={
+                                    <span className="text-gray-600">
+                                    Alert at <strong>{format(new Date(note.alertTime), 'MMMM d, yyyy h:mm a')}</strong>
+                                    </span>
+                                }
                                 />
                             </Link>
                             <ListItemSecondaryAction>
@@ -189,7 +253,7 @@ const page = () => {
                 </DialogContent>
                 <DialogActions>
                 <Button onClick={handleCloseDialog}>No</Button>
-                <Button onClick={handleCloseDialog} autoFocus>
+                <Button onClick={handleDelete} autoFocus>
                     Yes
                 </Button>
                 </DialogActions>

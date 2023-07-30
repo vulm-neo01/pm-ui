@@ -1,5 +1,6 @@
 'use client'
 import * as React from 'react';
+import { useState } from 'react';
 import { styled, useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import MuiDrawer from '@mui/material/Drawer';
@@ -27,6 +28,8 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
 import Link from 'next/link';
 import Cookies from 'js-cookie';
+import { AiOutlineClose } from 'react-icons/ai';
+import Notification from '@/model/Notification';
 
 const drawerWidth = 240;
 
@@ -262,9 +265,19 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
     }),
 );
 
+
+
 export default function NavBar() {
+    const [isOpen, setIsOpen] = React.useState(false);
+    const handleOpenModal = () => {
+        setIsOpen(true);
+    };
+    
+    const handleCloseModal = () => {
+        setIsOpen(false);
+    };
     const theme = useTheme();
-    const [open, setOpen] = React.useState(false);
+    const [open, setOpen] = useState(false);
 
     const handleDrawerOpen = () => {
         setOpen(true);
@@ -292,20 +305,49 @@ export default function NavBar() {
             >
                 <MenuIcon />
             </IconButton>
-            <Link href="/your-home">
-                <Typography variant="h6" noWrap component="div">
-                    Manage Now
-                </Typography>
-            </Link>
             <Image
                 src="/png/logo4.png"
                 alt="N"
                 width="40"
                 height="40"
-                className="w-8 mr-2 absolute right-0"
+                className="w-8 mr-2"
             />
+            <Link href="/your-home">
+                <Typography variant="h6" noWrap component="div">
+                    Manage Now
+                </Typography>
+            </Link>
+            <button className="absolute right-0 mr-4 inline-flex items-center rounded-full bg-blue-400 w-10 h-10 p-3 text-white shadow-lg dark:text-gray-200 focus:outline-none hover:bg-blue-500" onClick={handleOpenModal}>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-7 w-7">
+                    <path fillRule="evenodd" d="M5.25 9a6.75 6.75 0 0113.5 0v.75c0 2.123.8 4.057 2.118 5.52a.75.75 0 01-.297 1.206c-1.544.57-3.16.99-4.831 1.243a3.75 3.75 0 11-7.48 0 24.585 24.585 0 01-4.831-1.244.75.75 0 01-.298-1.205A8.217 8.217 0 005.25 9.75V9zm4.502 8.9a2.25 2.25 0 104.496 0 25.057 25.057 0 01-4.496 0z" clipRule="evenodd" />
+                </svg>
+            </button>
             </Toolbar>
         </AppBar>
+        {isOpen && (
+            <div className="fixed inset-0 flex items-center justify-center z-50">
+                <div className="modal-overlay absolute inset-0 bg-gray-700 opacity-70" onClick={handleCloseModal}></div>
+                    <div className="modal-container bg-white w-1/2 rounded-lg shadow-lg z-50">
+                        <div className="modal-header flex justify-between items-center bg-blue-400 text-white py-2 px-4">
+                        <h3 className="text-lg font-semibold">Notifications</h3>
+                        <button className="text-white" onClick={handleCloseModal}>
+                            <AiOutlineClose className="h-6 w-6" />
+                        </button>
+                        </div>
+                        <div className="modal-content p-2 text-black">
+                            <Notification />
+                        </div>
+                        <div className="modal-footer flex justify-end bg-gray-100 py-2 px-4">
+                        <button
+                            className="bg-blue-400 text-white rounded-md px-4 py-2 font-semibold hover:bg-blue-500"
+                            onClick={handleCloseModal}
+                        >
+                            Close
+                        </button>
+                    </div>
+                </div>
+            </div>
+        )}
         <Drawer variant="permanent" open={open}>
             <DrawerHeader>
             <IconButton onClick={handleDrawerClose}>
