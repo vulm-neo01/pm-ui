@@ -57,3 +57,17 @@ export const getTaskList = async() => {
             return null;
         });
 }
+
+export const getAlert = async() => {
+    return fetch(`${API_BASE_URL}/api/notes/alert`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${Cookies.get('token')}`,
+        },
+        })
+            .then((response) => response.json())
+            .catch((error) => {
+            console.error('Error fetching note list data:', error);
+            return null;
+        });
+}

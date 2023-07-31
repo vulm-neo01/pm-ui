@@ -1,6 +1,7 @@
 "use client"
 import React, {useEffect, useState} from 'react'
 import { getUserData } from '@/app/api/api';
+import AlertChecker from '../notes/[noteId]/AlertChecker';
 
 const page = () => {
 
@@ -74,6 +75,7 @@ const page = () => {
                     <h1 className='text-4xl font-semibold text-gray-800'>Loading...</h1>
                 </div>
             )}
+            <AlertChecker />
         </div>
     )
 }

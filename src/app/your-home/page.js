@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { API_BASE_URL } from '../api/apiBase';
 import Cookies from 'js-cookie';
 import { fetchUserData } from '../api/api';
+import AlertChecker from './notes/[noteId]/AlertChecker';
 
 
 const Page = () => {
@@ -48,6 +49,7 @@ const Page = () => {
                     priority
                 />
             </div>
+            <AlertChecker />
         </>
     );
 };

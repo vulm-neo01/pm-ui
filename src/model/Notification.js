@@ -165,6 +165,25 @@ const NotificationItem = ({ notification }) => {
                     </div>
                 </>
             )}
+            {(notification.type === "NOTE") && (
+                <>
+                    <p>
+                        You have a new alert to a note, <Link className='text-blue-600' href={`/your-home/notes/${notification.noteId}`}>Click to see!</Link>
+                    </p>
+                    <p>
+                        {message && <strong className="text-blue-500 text-sm">{message}</strong>}
+                    </p>
+                    <div className="mt-2 flex justify-end space-x-2">
+                        <button
+                            onClick={() => handleOK(notification.notificationId)}
+                            disabled={isLoading || isOK }
+                            className="bg-blue-500 text-white rounded-lg px-4 py-2 font-semibold hover:bg-blue-600"
+                        >
+                            <CheckIcon />
+                        </button>
+                    </div>
+                </>
+            )}
         </div>
     );
 };

@@ -12,6 +12,7 @@ import TabPanel from '@mui/lab/TabPanel';
 import ProjectDetail from './projectDetail';
 import GetMembers from './Members';
 import TaskList from './Tasks';
+import AlertChecker from '../../notes/[noteId]/AlertChecker';
 
 const page = () => {
     const [value, setValue] = React.useState('1');
@@ -35,6 +36,7 @@ const page = () => {
                 <TabPanel value="2"><TaskList/></TabPanel>
                 <TabPanel value="3"><GetMembers/></TabPanel>
             </TabContext>
+            <AlertChecker />
         </Box>
     )
 }
