@@ -30,6 +30,20 @@ export const getTaskList = async (id) => {
         });
 };
 
+export const getUserList = async (id) => {
+    return fetch(`${API_BASE_URL}/api/projects/users/${id}`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${Cookies.get('token')}`,
+        },
+        })
+            .then((response) => response.json())
+            .catch((error) => {
+            console.error('Error fetching project member detail data:', error);
+            return null;
+        });
+};
+
 export const getMemberList = async (id) => {
     return fetch(`${API_BASE_URL}/api/projects/members/${id}`, {
         method: 'GET',

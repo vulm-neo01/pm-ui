@@ -58,10 +58,10 @@ const page = () => {
                 setData(responseData); // Cập nhật dữ liệu vào state data
                 console.log(responseData);
             });
-    }, []);
+    }, [data]);
 
     const handleSubmit = async (e) => {
-        
+        e.preventDefault();
         const postData = {
             username,
             fullName,
@@ -91,7 +91,7 @@ const page = () => {
                 console.log('Post successful!', data);
                 setIsEditing(false);
                 alert('Your Information changed successfully!!!')
-                window.location.reload();
+                // window.location.reload();
             } else {
                 // Xử lý phản hồi từ server nếu đăng nhập không thành công
                 console.log('Post failed!');
@@ -107,7 +107,6 @@ const page = () => {
 
         const postData = {
             password,
-            "user": Cookies.get('user')
         }
         console.log(postData)
 

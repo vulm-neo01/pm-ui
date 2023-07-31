@@ -169,6 +169,7 @@ const LogoutListItem = () => {
     const handleLogout = () => {
         Cookies.remove('token')
         Cookies.remove('user')
+        Cookies.remove('userId')
     };
     return (
         <Link href="/">

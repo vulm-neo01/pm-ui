@@ -5,6 +5,7 @@ import CheckIcon from '@mui/icons-material/Check';
 import ClearIcon from '@mui/icons-material/Clear';
 import { API_BASE_URL } from '@/app/api/apiBase';
 import Cookies from 'js-cookie';
+import Link from 'next/link';
 
 const NotificationItem = ({ notification }) => {
     const [isLoading, setIsLoading] = useState(false);
@@ -17,7 +18,7 @@ const NotificationItem = ({ notification }) => {
         try {
             setIsLoading(true);
             // Gửi POST request đến API với thông tin notificationId và state là ACCEPT
-            const response = await fetch(`${API_BASE_URL}/api/notifications/reply`, {
+            const response = await fetch(`${API_BASE_URL}/api/notifications/replyProject`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -51,7 +52,7 @@ const NotificationItem = ({ notification }) => {
         try {
             setIsLoading(true);
             // Gửi POST request đến API với thông tin notificationId và state là ACCEPT
-            const response = await fetch(`${API_BASE_URL}/api/notifications/reply`, {
+            const response = await fetch(`${API_BASE_URL}/api/notifications/replyProject`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -92,9 +93,10 @@ const NotificationItem = ({ notification }) => {
                     'Authorization': `Bearer ${Cookies.get('token')}`,
                 },
                 body: JSON.stringify({
-                    notificationId: notificationId,
+                    notificationId,
                     state: 'READ',
-                }),
+                }
+                ),
             });
 
             // Kiểm tra kết quả từ server
@@ -107,7 +109,7 @@ const NotificationItem = ({ notification }) => {
                 console.error('Error OK notification');
             }
             
-            setIsDenied(true);
+            setIsOK(true);
             setIsLoading(false);
         } catch (error) {
             console.error('Error handling OK:', error);
@@ -117,10 +119,11 @@ const NotificationItem = ({ notification }) => {
 
     return (
         <div className={`p-2 mb-2 rounded-lg shadow-md`}>
-            {notification.type === 'REPLY' ? (
+            {notification && (notification.type === "REPLY") && (
                 <>
                     <p>
-                        <strong>{notification.inviterName}</strong> invite you to be a <strong>{notification.role}</strong> for his project!
+                        <strong>{notification.inviterName}</strong> invite you to be a <strong>
+                            {notification.role}</strong> for his <Link className="" href={`/your-home/projects/${notification.projectId}`}>project</Link>!
                     </p>
                     <p>
                         {message && <strong className="text-red-500 text-sm">{message}</strong>}
@@ -136,16 +139,17 @@ const NotificationItem = ({ notification }) => {
                         <button
                             onClick={() => handleDeny(notification.notificationId)}
                             disabled={isLoading || isAccepted || isDenied}
-                            className="bg-blue-500 text-white rounded-lg px-4 py-2 font-semibold hover:bg-blue-600"
+                            className="bg-red-500 text-white rounded-lg px-4 py-2 font-semibold hover:bg-blue-600"
                         >
                             <ClearIcon />
                         </button>
                     </div>
                 </>
-            ) : (
+            )}
+            {(notification.type === "NOTIFY") && (
                 <>
                     <p>
-                        <strong>{notification.inviterName}</strong> change your role to <strong>{notification.role}</strong> in his project!
+                        <strong>{notification.inviterName}</strong> change your role to in his project/task!
                     </p>
                     <p>
                         {message && <strong className="text-blue-500 text-sm">{message}</strong>}
@@ -174,7 +178,7 @@ const Notification = () => {
                 setNotifications(responseData); // Cập nhật dữ liệu vào state data
                 console.log(responseData);
             });
-    }, []);
+    }, [notifications]);
     return (
         <div>
             {unreadNotifications && unreadNotifications.length > 0 ? (

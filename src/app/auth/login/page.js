@@ -43,6 +43,7 @@ export default function Login() {
             } else {
                 // Xử lý phản hồi từ server nếu đăng nhập không thành công
                 console.log('Login failed!');
+                console.log(password)
                 setErrorMessage("Mật khẩu hoặc Email không đúng!")
             }
             // Xử lý phản hồi từ API tại đây

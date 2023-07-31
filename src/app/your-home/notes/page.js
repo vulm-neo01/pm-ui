@@ -17,6 +17,7 @@ import { API_BASE_URL } from '@/app/api/apiBase';
 import { format, addHours  } from 'date-fns';
 
 import { List, ListItem, ListItemText, ListItemSecondaryAction, IconButton } from '@mui/material';
+import { getNotesList } from '@/app/api/noteAPI';
 
 const page = () => {
     const [notes, setNotes] = useState(null);
@@ -46,19 +47,10 @@ const page = () => {
     };
 
     useEffect(() => {
-        fetch(`${API_BASE_URL}/api/users/notes`, {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${Cookies.get('token')}`,
-            },
-        })
-            .then((response) => response.json())
+        getNotesList()
             .then((responseData) => {
                 setNotes(responseData); // Cập nhật dữ liệu vào state data
-                console.log(responseData)
-            })
-            .catch((error) => {
-                console.error('Error fetching data:', error);
+                console.log(responseData);
             });
     }, []);
 

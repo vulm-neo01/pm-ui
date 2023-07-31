@@ -44,6 +44,11 @@ const ProjectDetail = () => {
         getProjectDetails(id)
             .then((responseData) => {
                 setData(responseData); // Cập nhật dữ liệu vào state data
+                setProjectName(responseData.projectName)
+                setDescription(responseData.description)
+                setProgress(responseData.progress)
+                setStartDate(responseData.startDate)
+                setEndDate(responseData.endDate)
                 console.log(responseData);
             });
         getDocuments(id)
@@ -131,7 +136,7 @@ const ProjectDetail = () => {
             console.log(selectedFile);
             console.log(formData);
         
-            const response = await fetch(`${API_BASE_URL}/api/documents?projectId=${localStorage.getItem('projectId')}`, {
+            const response = await fetch(`${API_BASE_URL}/api/documents/project?projectId=${localStorage.getItem('projectId')}`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${Cookies.get('token')}`,
