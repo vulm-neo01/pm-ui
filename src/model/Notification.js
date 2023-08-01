@@ -123,7 +123,7 @@ const NotificationItem = ({ notification }) => {
                 <>
                     <p>
                         <strong>{notification.inviterName}</strong> invite you to be a <strong>
-                            {notification.role}</strong> for his <Link className="" href={`/your-home/projects/${notification.projectId}`}>project</Link>!
+                            {notification.role}</strong> for his <Link className="text-blue-500 text-base underline" href={`/your-home/projects/${notification.projectId}`}>project</Link>!
                     </p>
                     <p>
                         {message && <strong className="text-red-500 text-sm">{message}</strong>}

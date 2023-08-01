@@ -7,14 +7,14 @@ const page = () => {
 
     const [data, setData] = useState(null);
 
-    // useEffect(() => {
-    //     // Gọi hàm fetchUserData từ module api.js
-    //     getUserData()
-    //         .then((responseData) => {
-    //             setData(responseData); // Cập nhật dữ liệu vào state data
-    //             console.log(responseData);
-    //         });
-    // }, []);
+    useEffect(() => {
+        // Gọi hàm fetchUserData từ module api.js
+        getUserData()
+            .then((responseData) => {
+                setData(responseData); // Cập nhật dữ liệu vào state data
+                console.log(responseData);
+            });
+    }, []);
 
     return (
         <div>
@@ -75,7 +75,6 @@ const page = () => {
                     <h1 className='text-4xl font-semibold text-gray-800'>Loading...</h1>
                 </div>
             )}
-            <AlertChecker />
         </div>
     )
 }

@@ -68,3 +68,17 @@ export const getOneDocument = async (id) => {
         return null;
     }
 };
+
+export const getDiscussions = async (id) => {
+    return fetch(`${API_BASE_URL}/api/discussions/task/${id}`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${Cookies.get('token')}`,
+        },
+        })
+            .then((response) => response.json())
+            .catch((error) => {
+            console.error('Error fetching documents data:', error);
+            return null;
+        });
+}

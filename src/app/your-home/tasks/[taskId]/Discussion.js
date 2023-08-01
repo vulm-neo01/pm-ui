@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react'
 import { useParams } from 'next/navigation';
 import { API_BASE_URL } from '@/app/api/apiBase';
 import Cookies from 'js-cookie';
-import { getMemberTaskList, getTaskDetails } from '@/app/api/taskAPI';
+import { getDiscussions, getMemberTaskList, getTaskDetails } from '@/app/api/taskAPI';
 import { getManagerIdList } from '@/app/api/projectAPI';
 import SaveAltIcon from '@mui/icons-material/SaveAlt';
 import DeleteIcon from '@mui/icons-material/Delete'
@@ -15,6 +15,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Button from '@mui/material/Button';
+import { format, addHours  } from 'date-fns';
 
 const Discussion = () => {
     const params = useParams();
@@ -26,6 +27,8 @@ const Discussion = () => {
     const [selectedDocuments, setSelectedDocuments] = useState(null);
     const [selectedFile, setSelectedFile] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
+    const [discussions, setDiscussions] = useState(null);
+    const [comments, setComments] = useState(null);
 
     const [members, setMembers] = useState(null);
     const [managerIds, setManagerIds] = useState(null);
@@ -50,13 +53,18 @@ const Discussion = () => {
                 setDocuments(responseData); // Cập nhật dữ liệu vào state data
                 console.log(responseData);
             });
+        getDiscussions(id)
+            .then((responseData) => {
+                setDiscussions(responseData); // Cập nhật dữ liệu vào state data
+                console.log(responseData);
+            });
         getManagerIdList(projectId)
             .then((responseData) => {
                 setManagerIds(responseData); // Cập nhật dữ liệu vào state data
                 console.log(responseData);
-            });  
+            });
         localStorage.setItem('taskId', id)
-    }, []);
+    }, [discussions]);
 
     const handleOpenDialog = (docId) => {
         setSelectedDocuments(docId);
@@ -147,48 +155,85 @@ const Discussion = () => {
             }
     };
 
+    const handlePostComment = async (e) => {
+        const postData = {
+            "rootId": id,
+            "email": Cookies.get('user'),
+            "content": comments,
+        }
+        console.log(postData)
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/discussions/task`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${Cookies.get('token')}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(
+                    postData
+                ),
+            });
+
+            if (response.ok) {
+                // Xử lý phản hồi từ server nếu đăng nhập thành công
+                const data = await response.json();
+                console.log('Post successful!', data);
+                setComments("")
+                // alert('Comments successfully!!!')
+                // window.location.reload();
+            } else {
+                // Xử lý phản hồi từ server nếu đăng nhập không thành công
+                console.log('Post failed!');
+            }
+            // Xử lý phản hồi từ API tại đây
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    };
+
     return (
         <div className="grid grid-cols-3 gap-6">
-            {/* Phần Details Info */}
-            <div className="col-span-2 border-r-2 bg-gray-100 rounded-lg p-4">
-                <strong className="text-xl font-semibold">Details Information:</strong>
-                <br />
-                <>
-                    <div className='flex'>
-                            <>
-                                <div className="mr-12 mt-2">
-                                    <div className="mb-4 opacity-transition hover:opacity-80">
-                                        <strong>Task Name:</strong> 
-                                    </div>
-                                    <div className="mb-4 opacity-transition hover:opacity-80">
-                                        <strong>Description:</strong> 
-                                    </div>
-                                    <div className="mb-4 opacity-transition hover:opacity-80">
-                                        <strong>Priority:  </strong>
-                                        <span className={`text-lg font-semibold`}>
-                                        
-                                        </span>
-                                    </div>
-                                    <div className="mb-4 opacity-transition hover:opacity-80">
-                                        <strong>Progress:  </strong>
-                                        <span className={`text-lg font-semibold`}>
-                                            
-                                        </span>
-                                    </div>
-                                    <div className="mb-4 opacity-transition hover:opacity-80">
-                                        <strong>Start Date:</strong> 
-                                    </div>
-                                    <div className="mb-4 opacity-transition hover:opacity-80">
-                                        <strong>End Date:</strong> 
-                                    </div>
-                                    <div className="mb-4 opacity-transition hover:opacity-80">
-                                        <strong>Create By:</strong>
-                                    </div>
-                                </div>
-                            </>
-                        </div>
-                    </>
+            {/* Phần Discussions */}
+            <div className="col-span-2 bg-gray-100 rounded-lg p-4 h-auto">
+                {memberIds && memberIds.includes(userId) || (managerIds && managerIds.includes(userId)) ? (
+                    <div className="mb-4">
+                        <input
+                            type="text"
+                            placeholder="Your comment"
+                            value={comments}
+                            onChange={(e) => setComments(e.target.value)}
+                            className="p-2 border border-gray-300 rounded-lg mr-2"
+                        />
+                        <button
+                            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                            onClick={handlePostComment}
+                        >
+                            Add Comment
+                        </button>
+                    </div>
+                ) : (
+                    <></>
+                )}
+                <div className="flex-grow overflow-y-scroll">
+                    {discussions ? (
+                        discussions
+                        .sort((a, b) => new Date(b.time) - new Date(a.time))
+                        .map((discussion) => (
+                            <div key={discussion.discussionId} className="bg-white p-2 rounded-lg mb-2">
+                                <p className="text-blue-500 font-semibold">{discussion.email}</p>
+                                <p className="text-gray-500 text-sm">
+                                    {format(new Date(discussion.time), "dd/MM/yyyy HH:mm:ss")}
+                                </p>
+                                <p>{discussion.content}</p>
+                            </div>
+                        ))
+                    ) : (
+                        <h2>Loading!!</h2>
+                    )}
+                </div>
             </div>
+
             <div>
                 <div className="col-span-1 flex items-center ">
                         <strong className="text-xl font-semibold">Documents:</strong>
@@ -219,28 +264,30 @@ const Discussion = () => {
                         <>
                             <ul className="list-disc pl-6">
                             {documents.map((document) => (
-                                <li key={document.docId} className="mt-2">
-                                    {/* Các thông tin tài liệu */}
-                                    <a
-                                        onClick={() => handleDownload(document.docId, document.name)}
-                                        className="text-blue-500 hover:cursor-pointer"
-                                    >
-                                        <SaveAltIcon style={{ fontSize: 30, marginRight: 4 }} />
-                                        {document.name}
-                                    </a>
-                                    { memberIds && memberIds.includes(userId) || (managerIds && managerIds.includes(userId)) ? (
-                                        <IconButton
-                                            onClick={() => handleOpenDialog(document.docId)}
-                                            id={`delete-${document.docId}`}
-                                            aria-label="delete"
-                                            style={{ fontSize: '1.5rem', marginLeft: '10px' }}
+                                <div key={document.docId}>
+                                    <li className="mt-2">
+                                        {/* Các thông tin tài liệu */}
+                                        <a
+                                            onClick={() => handleDownload(document.docId, document.name)}
+                                            className="text-blue-500 hover:cursor-pointer"
                                         >
-                                            <DeleteIcon />
-                                        </IconButton>
-                                    ) : (
-                                        <p></p>
-                                    )}
-                                </li>
+                                            <SaveAltIcon style={{ fontSize: 30, marginRight: 4 }} />
+                                            {document.name}
+                                        </a>
+                                        { memberIds && memberIds.includes(userId) || (managerIds && managerIds.includes(userId)) ? (
+                                            <IconButton
+                                                onClick={() => handleOpenDialog(document.docId)}
+                                                id={`delete-${document.docId}`}
+                                                aria-label="delete"
+                                                style={{ fontSize: '1.5rem', marginLeft: '10px' }}
+                                            >
+                                                <DeleteIcon />
+                                            </IconButton>
+                                        ) : (
+                                            <p></p>
+                                        )}
+                                    </li>
+                                </div>
                             ))}
                             </ul>
                         </>
