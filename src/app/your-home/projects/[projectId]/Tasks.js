@@ -231,7 +231,7 @@ const TaskList = () => {
                         <option value="READY">READY</option>
                         <option value="DOING">DOING</option>
                         <option value="DONE">DONE</option>
-                        <option value="EXPIRED">OUTDATED</option>
+                        <option value="OUTDATED">OUTDATED</option>
                     </select>
                 </div>
                 <div className="mb-1">
